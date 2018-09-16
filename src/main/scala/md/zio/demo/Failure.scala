@@ -26,6 +26,7 @@ object Failure {
     case _ => readFile("backup.json")
   }
 
+  val alternative : IO[Exception, Array[Byte]] = readFile("data.json").orElse(readFile("backup.json"))
 
-
+  val redeemed: IO[Nothing, Int] = readFile("data.json").redeem[Nothing, Int](_ => IO.point(0), content => IO.point(content.length))
 }
