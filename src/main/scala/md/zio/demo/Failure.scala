@@ -35,13 +35,13 @@ object Failure {
     content => IO.point(content)
   )
 
-  val untilFirstFailure: IO[IOException, Nothing] = openFile("primary.json").forever
+  val open: IO[IOException, Array[Byte]] = openFile("primary.json")
 
-  val policy: Schedule[String, Int] = ???
+  val schedule: Schedule[IOException, Array[Byte]] = ???
 
-  val retryWithSchedule: IO[String, Unit] = failure.retry(policy)
+  val retried: IO[IOException, Array[Byte]] = open.retry(schedule)
 
-  val fallback: (String, Int) => IO[String, Unit] = ???
+  val fallback: (IOException, Array[Byte]) => IO[IOException, Array[Byte]] = ???
 
-  val retriedWithScheduleAndFallback: IO[String, Unit] = failure.retryOrElse(policy, fallback)
+  val retriedWithScheduleAndFallback: IO[IOException, Array[Byte]] = open.retryOrElse(schedule, fallback)
 }
