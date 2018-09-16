@@ -20,15 +20,17 @@ object Failure {
     case Right(data) => data
   }
 
-  val caughtAll: IO[Exception, Array[Byte]] = readFile("data.json").catchAll(_ => readFile("backup.json"))
+  def openFile(name: String): IO[IOException, Array[Byte]] = ???
 
-  val caughtSome: IO[Exception, Array[Byte]] = readFile("data.json").catchSome {
-    case _ => readFile("backup.json")
+  val caughtAll: IO[IOException, Array[Byte]] = openFile("primary.json").catchAll(_ => openFile("backup.json"))
+
+  val caughtSome: IO[IOException, Array[Byte]] = openFile("primary.json").catchSome {
+    case _ => openFile("backup.json")
   }
 
-  val alternative: IO[Exception, Array[Byte]] = readFile("data.json").orElse(readFile("backup.json"))
+  val alternative: IO[IOException, Array[Byte]] = openFile("primary.json").orElse(openFile("backup.json"))
 
-  val redeemed: IO[Nothing, Int] = readFile("data.json").redeem[Nothing, Int](_ => IO.point(0), content => IO.point(content.length))
+  val redeemed: IO[Nothing, Int] = openFile("data.json").redeem[Nothing, Int](_ => IO.point(0), content => IO.point(content.length))
 
   val untilFirstFailure: IO[String, Nothing] = failure.forever
 
