@@ -21,6 +21,8 @@ object Failure {
 
   def openFile(name: String): IO[IOException, Array[Byte]] = ???
 
+  def closeFile(content: Array[Byte]): IO[Nothing, Unit] = ???
+
   val caughtAll: IO[IOException, Array[Byte]] = openFile("primary.json").catchAll(_ => openFile("backup.json"))
 
   val caughtSome: IO[IOException, Array[Byte]] = openFile("primary.json").catchSome {
