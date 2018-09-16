@@ -1,6 +1,6 @@
 package md.zio.demo
 
-import java.io.{FileNotFoundException, IOException}
+import java.io.IOException
 
 import md.zio.demo.Purity.ImpureCode._
 import scalaz.zio._
@@ -26,7 +26,17 @@ object Failure {
     case _ => readFile("backup.json")
   }
 
-  val alternative : IO[Exception, Array[Byte]] = readFile("data.json").orElse(readFile("backup.json"))
+  val alternative: IO[Exception, Array[Byte]] = readFile("data.json").orElse(readFile("backup.json"))
 
   val redeemed: IO[Nothing, Int] = readFile("data.json").redeem[Nothing, Int](_ => IO.point(0), content => IO.point(content.length))
+
+  val untilFirstFailure: IO[String, Nothing] = failure.forever
+
+  val policy: Schedule[String, Int] = ???
+
+  val retryWithSchedule: IO[String, Unit] = failure.retry(policy)
+
+  val fallback: (String, Int) => IO[String, Unit] = ???
+
+  val retriedWithScheduleAndFallback: IO[String, Unit] = failure.retryOrElse(policy, fallback)
 }
