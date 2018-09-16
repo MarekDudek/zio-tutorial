@@ -2,7 +2,6 @@ package md.zio.demo
 
 import java.io.IOException
 
-import md.zio.demo.Purity.ImpureCode._
 import scalaz.zio._
 
 object Failure {
@@ -30,9 +29,13 @@ object Failure {
 
   val alternative: IO[IOException, Array[Byte]] = openFile("primary.json").orElse(openFile("backup.json"))
 
-  val redeemed: IO[Nothing, Int] = openFile("data.json").redeem[Nothing, Int](_ => IO.point(0), content => IO.point(content.length))
+  val redeemed: IO[Nothing, Array[Byte]] = openFile("data.json").
+    redeem[Nothing, Array[Byte]](
+    _ => IO.point(new Array(0)),
+    content => IO.point(content)
+  )
 
-  val untilFirstFailure: IO[String, Nothing] = failure.forever
+  val untilFirstFailure: IO[IOException, Nothing] = openFile("primary.json").forever
 
   val policy: Schedule[String, Int] = ???
 
