@@ -33,4 +33,17 @@ object Fibers {
         v2 <- f2.join
         v1 <- f1.join
       } yield v1 + v2
+
+  trait Matrix
+
+  def computeInverse(matrix: Matrix): IO[Nothing, Matrix] = ???
+
+  def applyMatrices(m1: Matrix, m2: Matrix, v: Matrix): IO[Nothing, Matrix] = ???
+
+  def bigCompute(m1: Matrix, m2: Matrix, v: Matrix): IO[Nothing, Matrix] =
+    for {
+      t <- computeInverse(m1).par(computeInverse(m2))
+      (i1, i2) = t
+      r <- applyMatrices(i1, i2, v)
+    } yield r
 }
