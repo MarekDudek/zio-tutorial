@@ -46,4 +46,7 @@ object Fibers {
       (i1, i2) = t
       r <- applyMatrices(i1, i2, v)
     } yield r
+
+  def racing(m1: Matrix, m2: Matrix): IO[Nothing, Matrix] =
+    computeInverse(m1).race(computeInverse(m2))
 }
