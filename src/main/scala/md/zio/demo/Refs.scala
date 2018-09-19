@@ -23,4 +23,38 @@ object Refs {
 
         loop
     }
+
+  val account: IO[Nothing, Ref[Int]] = Ref(100)
+
+  val john: Ref[Int] => IO[Nothing, Boolean] =
+    (act: Ref[Int]) =>
+      act.get.flatMap(
+        v => act.compareAndSet(v, v - 30)
+      )
+
+  val gaston: Ref[Int] => IO[Nothing, Boolean] =
+    (act: Ref[Int]) =>
+      act.get.flatMap(
+        v => act.compareAndSet(v, v - 70)
+      )
+
+  val res: IO[Nothing, Int] = for {
+    accountR <- account
+    _ <- john(accountR) par gaston(accountR)
+    v <- accountR.get
+  } yield v
+
+  Ref(0).flatMap {
+
+    idCounter =>
+
+      def freshVar: IO[Nothing, String] =
+        idCounter.modify(cpt => (s"var${cpt + 1}", cpt + 1))
+
+      for {
+        _ <- freshVar
+        _ <- freshVar
+        _ <- freshVar
+      } yield ()
+  }
 }
