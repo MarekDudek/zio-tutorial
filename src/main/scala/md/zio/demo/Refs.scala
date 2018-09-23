@@ -96,10 +96,15 @@ object Refs {
     dancefloor <- S(10)
     dancers <- IO.parTraverse(1 to 100) {
       i =>
-        dancefloor.P *> IO.sync(Duration.fromNanos(Random.nextDouble * 1000000)).flatMap {
-          d =>
-            IO.sync(println(s"$i checking my boots")) *> IO.sleep(d) *> IO.sync(println(s"$i dancing like it's 99"))
-        } *> dancefloor.V
+        dancefloor.P *>
+          IO.sync(Duration.fromNanos(Random.nextDouble * 1000000)).
+            flatMap {
+              d =>
+                IO.sync(println(s"$i checking my boots")) *>
+                  IO.sleep(d) *>
+                  IO.sync(println(s"$i dancing like it's 99"))
+            } *>
+          dancefloor.V
     }
   } yield ()
 
