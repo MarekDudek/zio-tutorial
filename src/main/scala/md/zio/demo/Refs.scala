@@ -57,4 +57,36 @@ object Refs {
         _ <- freshVar
       } yield ()
   }
+
+  sealed trait S {
+
+    def P: IO[Nothing, Unit]
+
+    def V: IO[Nothing, Unit]
+  }
+
+  object S {
+
+    def apply(v: Long): IO[Nothing, S] =
+
+      Ref(v).map {
+        vref =>
+          new S {
+
+            def V: IO[Nothing, Unit] = vref.update(_ + 1).void
+
+            def P: IO[Nothing, Unit] = (vref.get.flatMap {
+              v =>
+                if (v < 0)
+                  IO.fail(())
+                else
+                  vref.compareAndSet(v, v - 1).flatMap {
+                    case false => IO.fail(())
+                    case true => IO.unit
+                  }
+            } <> P).attempt.void
+          }
+      }
+  }
+
 }
